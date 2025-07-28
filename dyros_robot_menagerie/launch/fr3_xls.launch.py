@@ -29,7 +29,7 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {'robot_name': 'fr3_xls'},
-            {'controller_class': 'dyros_robot_menagerie.FR3XLSController'},
+            {'controller_class': 'dyros_robot_menagerie.FR3XLSControllerPy'},
             ],
         remappings=[('/joint_states', '/joint_states_raw')],
     )

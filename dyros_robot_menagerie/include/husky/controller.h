@@ -1,6 +1,5 @@
 #pragma once
 #include "mujoco_ros_sim/ControllerInterface.hpp"
-#include "mujoco_ros_sim/ControllerRegistry.hpp"
 
 #include "husky/robot_data.h"
 

@@ -29,7 +29,7 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {'robot_name': 'fr3_dyros_pcv'},
-            {'controller_class': 'dyros_robot_menagerie.FR3PCVController'},
+            {'controller_class': 'dyros_robot_menagerie.FR3PCVControllerPy'},
             ],
         remappings=[('/joint_states', '/joint_states_raw')],
     )

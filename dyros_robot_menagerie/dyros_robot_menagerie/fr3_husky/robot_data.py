@@ -1,0 +1,135 @@
+from pathlib import Path
+from typing import Final, Tuple
+import numpy as np
+from ament_index_python.packages import get_package_share_directory
+from dyros_robot_controller import (DriveType,
+                                    KinematicParam,
+                                    JointIndex,
+                                    ActuatorIndex,
+                                    )
+from dyros_robot_controller.robot_data import MobileManipulatorBase
+
+TASK_DOF:     Final[int] = 6
+VIRTUAL_DOF:  Final[int] = 3
+MANI_DOF:     Final[int] = 7
+MOBI_DOF:     Final[int] = 2
+ACTUATOR_DOF: Final[int] = MANI_DOF + MOBI_DOF
+JOINT_DOF:    Final[int] = ACTUATOR_DOF + VIRTUAL_DOF
+
+"""
+FR3 Husky URDF Joint Information
+Total nq = 12
+Total nv = 12
+
+ id | name              | nq | nv | idx_q | idx_v
+----+-------------------+----+----+-------+------
+  1 |         v_x_joint |  1 |  1 |     0 |    0
+  2 |         v_y_joint |  1 |  1 |     1 |    1
+  3 |         v_t_joint |  1 |  1 |     2 |    2
+  4 |        fr3_joint1 |  1 |  1 |     3 |    3
+  5 |        fr3_joint2 |  1 |  1 |     4 |    4
+  6 |        fr3_joint3 |  1 |  1 |     5 |    5
+  7 |        fr3_joint4 |  1 |  1 |     6 |    6
+  8 |        fr3_joint5 |  1 |  1 |     7 |    7
+  9 |        fr3_joint6 |  1 |  1 |     8 |    8
+ 10 |        fr3_joint7 |  1 |  1 |     9 |    9
+ 11 |        left_wheel |  1 |  1 |    10 |   10
+ 12 |       right_wheel |  1 |  1 |    11 |   11
+"""
+class FR3HuskyRobotData(MobileManipulatorBase):
+    def __init__(self, verbose: bool = False) -> None:
+        robot_pkg = get_package_share_directory("dyros_robot_menagerie")
+        mujoco_pkg = get_package_share_directory("mujoco_ros_sim")
+        
+        urdf  = str(Path(robot_pkg, "robot", "fr3_husky.urdf"))
+        srdf  = str(Path(robot_pkg, "robot", "fr3_husky.srdf"))
+        
+        mobile_kine = KinematicParam(type         = DriveType.Differential,
+                                     wheel_radius = 0.1651,
+                                     base_width   = 0.2854 * 2 * 1.875
+                                     )
+        joint_idx = JointIndex(virtual_start = 0,
+                               mani_start    = VIRTUAL_DOF,
+                               mobi_start    = VIRTUAL_DOF + MANI_DOF,
+                               )
+        actuator_idx = ActuatorIndex(mani_start = 0,
+                                     mobi_start = MANI_DOF,
+                                     )
+        
+        super().__init__(mobile_param  = mobile_kine,
+                         urdf_path     = urdf,
+                         srdf_path     = srdf,
+                         packages_path = mujoco_pkg,
+                         joint_idx     = joint_idx,
+                         actuator_idx  = actuator_idx,
+                         verbose       = verbose,
+                         )
+        
+        self._ee_name: Final[str] = "fr3_link8"
+
+    def compute_pose(self, q_virtual: np.ndarray, q_mobile: np.ndarray, q_mani: np.ndarray) -> np.ndarray:
+        return super().compute_pose(q_virtual, q_mobile, q_mani, self.ee_name)
+
+    def compute_jacobian(self, q_virtual: np.ndarray, q_mobile: np.ndarray, q_mani: np.ndarray) -> np.ndarray:
+        return super().compute_jacobian(q_virtual, q_mobile, q_mani, self.ee_name)
+
+    def compute_jacobian_time_variation(self,
+                                        q_virtual: np.ndarray,
+                                        q_mobile: np.ndarray,
+                                        q_mani: np.ndarray,
+                                        qdot_virtual: np.ndarray,
+                                        qdot_mobile: np.ndarray,
+                                        qdot_mani: np.ndarray,
+    ) -> np.ndarray:
+        return super().compute_jacobian_time_variation(q_virtual, q_mobile, q_mani, qdot_virtual, qdot_mobile, qdot_mani, self.ee_name)
+
+    def compute_velocity(self,
+                        q_virtual: np.ndarray,
+                        q_mobile: np.ndarray,
+                        q_mani: np.ndarray,
+                        qdot_virtual: np.ndarray,
+                        qdot_mobile: np.ndarray,
+                        qdot_mani: np.ndarray,
+    ) -> np.ndarray:
+        return super().compute_velocity( q_virtual, q_mobile, q_mani, qdot_virtual, qdot_mobile, qdot_mani, self.ee_name)
+
+    def compute_jacobian_actuated(self, q_virtual: np.ndarray, q_mobile: np.ndarray, q_mani: np.ndarray) -> np.ndarray:
+        return super().compute_jacobian_actuated(q_virtual, q_mobile, q_mani, self.ee_name)
+
+    def compute_jacobian_time_variation_actuated(self,
+                                                 q_virtual: np.ndarray,
+                                                 q_mobile: np.ndarray,
+                                                 q_mani: np.ndarray,
+                                                 qdot_virtual: np.ndarray,
+                                                 qdot_mobile: np.ndarray,
+                                                 qdot_mani: np.ndarray,
+                                                 ) -> np.ndarray:
+        return super().compute_jacobian_time_variation_actuated(q_virtual, q_mobile, q_mani, qdot_virtual, qdot_mobile, qdot_mani, self.ee_name)
+
+    def compute_manipulability(self, q_mani: np.ndarray, qdot_mani: np.ndarray, with_grad: bool = False, with_graddot: bool = False) -> Tuple[float, np.ndarray, np.ndarray]:
+        return super().compute_manipulability(q_mani, qdot_mani, with_grad, with_graddot, self.ee_name)
+
+    def get_pose(self) -> np.ndarray:
+        return np.asarray(super().get_pose(self.ee_name))
+
+    def get_jacobian(self) -> np.ndarray:
+        return np.asarray(super().get_jacobian(self.ee_name))
+
+    def get_jacobian_time_variation(self) -> np.ndarray:
+        return np.asarray(super().get_jacobian_time_variation(self.ee_name))
+
+    def get_velocity(self) -> np.ndarray:
+        return np.asarray(super().get_velocity(self.ee_name))
+
+    def get_manipulability(self, with_grad: bool = False, with_graddot: bool = False)-> Tuple[float, np.ndarray, np.ndarray]:
+        return super().get_manipulability(with_grad, with_graddot, self.ee_name)
+
+    def get_jacobian_actuated(self) -> np.ndarray:
+        return np.asarray(super().get_jacobian_actuated(self.ee_name))
+
+    def get_jacobian_actuated_time_variation(self) -> np.ndarray:
+        return np.asarray(super().get_jacobian_actuated_time_variation(self.ee_name))
+    
+    @property
+    def ee_name(self) -> str:
+        return self._ee_name

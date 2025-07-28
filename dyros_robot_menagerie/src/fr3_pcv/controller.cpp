@@ -187,7 +187,7 @@ namespace FR3PCV
             }
             VectorXd qdot_mobile_desired, qdot_mani_desired;
             robot_controller_->QPIKCubic(x_goal_,
-                                         ManiVec::Zero(),
+                                         TaskVec::Zero(),
                                          x_init_,
                                          xdot_init_,
                                          current_time_,
@@ -212,7 +212,7 @@ namespace FR3PCV
             }
             VectorXd qddot_mobile_desired,torque_mani_desired;
             robot_controller_->QPIDCubic(x_goal_,
-                                         ManiVec::Zero(),
+                                         TaskVec::Zero(),
                                          x_init_,
                                          xdot_init_,
                                          current_time_,

@@ -35,7 +35,7 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {'robot_name': "husky"},
-            {'controller_class': 'dyros_robot_menagerie.HuskyController'},
+            {'controller_class': 'dyros_robot_menagerie.HuskyControllerPy'},
         ],
         remappings=[('/joint_states', '/joint_states_raw')],
     )
@@ -125,7 +125,7 @@ def generate_launch_description():
         sim_node,
         robot_state_publisher,
         joint_state_publisher,
-        rviz_node,
+        # rviz_node,
         gui_node,
         joy_node,
         teleop_twist_joy_node,

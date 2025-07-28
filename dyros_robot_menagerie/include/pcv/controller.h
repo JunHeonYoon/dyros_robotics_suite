@@ -1,6 +1,5 @@
 #pragma once
 #include "mujoco_ros_sim/ControllerInterface.hpp"
-#include "mujoco_ros_sim/ControllerRegistry.hpp"
 
 #include "pcv/robot_data.h"
 

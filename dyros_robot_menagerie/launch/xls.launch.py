@@ -35,7 +35,7 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {'robot_name': "summit_xls"},
-            {'controller_class': 'dyros_robot_menagerie.XLSController'},
+            {'controller_class': 'dyros_robot_menagerie.XLSControllerPy'},
         ],
         remappings=[('/joint_states', '/joint_states_raw')],
     )
