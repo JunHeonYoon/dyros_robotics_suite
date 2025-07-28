@@ -1,6 +1,6 @@
 [submodule "dyros_robot_controller"]
 	path = dyros_robot_controller
 	url = https://github.com/JunHeonYoon/dyros_robot_controller.git
-[submodule "mujoco_ros2_sim"]
-	path = mujoco_ros2_sim
+[submodule "mujoco_ros_sim"]
+	path = mujoco_ros_sim
 	url = https://github.com/JunHeonYoon/mujoco_ros2_sim.git
