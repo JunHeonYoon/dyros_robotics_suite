@@ -5,7 +5,8 @@ from scipy.spatial.transform import Rotation as R
 from rclpy.node   import Node
 from std_msgs.msg import Int32
 from geometry_msgs.msg import PoseStamped, Twist
-from sensor_msgs.msg   import JointState
+from sensor_msgs.msg   import JointState, Image
+from cv_bridge         import CvBridge
 from mujoco_ros_sim import ControllerInterface
 from dyros_robot_menagerie.fr3_pcv.robot_data import (FR3PCVRobotData,
                                                       TASK_DOF,
@@ -79,6 +80,8 @@ class FR3PCVControllerPy(ControllerInterface):
 
         self._ee_pose_pub = node.create_publisher(PoseStamped, f"{ns}/ee_pose", 10)
         self._joint_pub = node.create_publisher(JointState, "/joint_states", 10)
+
+        self._d435_rgb_pub = node.create_publisher(Image, f"{ns}/d435/image_raw", 10)
         
         self.mode: str             = "HOME"
         self.is_mode_changed       = True
@@ -126,8 +129,14 @@ class FR3PCVControllerPy(ControllerInterface):
         self.torque_mani_desired = np.zeros(MANI_DOF)
         self.qdot_mobile_desired = np.zeros(MOBI_DOF)
 
+        self._bridge      = CvBridge()
+        self._latest_img: Dict[str, np.ndarray] = {
+            "d435_rgb":   None,                   # camera names as used in sensor_dict
+        }
+
     def starting(self) -> None:
         self.ee_timer = self.node.create_timer(0.1, self._pub_ee_pose_cb)
+        self.image_timer = self.node.create_timer(0.066, self._pub_image_cb)
 
     def updateState(self,
                     pos_dict:   Dict[str, np.ndarray],
@@ -184,6 +193,11 @@ class FR3PCVControllerPy(ControllerInterface):
         # get ee
         self.x     = self.robot_data.get_pose()
         self.xdot  = self.robot_data.get_velocity()
+
+        for cam in ("d435_rgb",):
+            if cam in sensor_dict and sensor_dict[cam].ndim == 3:
+                # copy to avoid accidental mutation from outside
+                self._latest_img[cam] = sensor_dict[cam].copy()
 
     def compute(self) -> None:
         if self.is_mode_changed:
@@ -327,3 +341,11 @@ class FR3PCVControllerPy(ControllerInterface):
         quat = R.from_matrix(self.x[:3, :3]).as_quat()  # x, y, z, w
         msg.pose.orientation.x, msg.pose.orientation.y, msg.pose.orientation.z, msg.pose.orientation.w = quat
         self._ee_pose_pub.publish(msg)
+
+    def _pub_image_cb(self) -> None:
+        # d435 camera ------------------------------------------------------
+        if self._latest_img["d435_rgb"] is not None:
+            msg                  = self._bridge.cv2_to_imgmsg(self._latest_img["d435_rgb"], encoding="rgb8")
+            msg.header.stamp     = self.node.get_clock().now().to_msg()
+            msg.header.frame_id  = "base_link"
+            self._d435_rgb_pub.publish(msg)
