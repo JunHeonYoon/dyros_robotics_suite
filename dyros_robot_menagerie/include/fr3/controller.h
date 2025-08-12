@@ -8,34 +8,44 @@
 #include <std_msgs/msg/int32.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
+#include <sensor_msgs/msg/image.hpp>
+
+#include "image_io.h"
+#include "math_type_define.h"
+
+#include <mutex> 
 
 namespace FR3
 {
-    /*
-    FR3 MuJoCo Joint/Sensor Information
-    id | name                 | type   | nq | nv | idx_q | idx_v
-    ----+----------------------+--------+----+----+-------+------
-    0 | fr3_joint1           | _Hinge |  1 |  1 |     0 |    0
-    1 | fr3_joint2           | _Hinge |  1 |  1 |     1 |    1
-    2 | fr3_joint3           | _Hinge |  1 |  1 |     2 |    2
-    3 | fr3_joint4           | _Hinge |  1 |  1 |     3 |    3
-    4 | fr3_joint5           | _Hinge |  1 |  1 |     4 |    4
-    5 | fr3_joint6           | _Hinge |  1 |  1 |     5 |    5
-    6 | fr3_joint7           | _Hinge |  1 |  1 |     6 |    6
+/*
+MuJoCo Model Information: franka_fr3_torque
+ id | name                 | type   | nq | nv | idx_q | idx_v
+----+----------------------+--------+----+----+-------+------
+  0 | fr3_joint1           | _Hinge |  1 |  1 |     0 |    0
+  1 | fr3_joint2           | _Hinge |  1 |  1 |     1 |    1
+  2 | fr3_joint3           | _Hinge |  1 |  1 |     2 |    2
+  3 | fr3_joint4           | _Hinge |  1 |  1 |     3 |    3
+  4 | fr3_joint5           | _Hinge |  1 |  1 |     4 |    4
+  5 | fr3_joint6           | _Hinge |  1 |  1 |     5 |    5
+  6 | fr3_joint7           | _Hinge |  1 |  1 |     6 |    6
 
-    id | name                 | trn     | target_joint
-    ----+----------------------+---------+-------------
-    0 | fr3_joint1           | _Joint  | fr3_joint1
-    1 | fr3_joint2           | _Joint  | fr3_joint2
-    2 | fr3_joint3           | _Joint  | fr3_joint3
-    3 | fr3_joint4           | _Joint  | fr3_joint4
-    4 | fr3_joint5           | _Joint  | fr3_joint5
-    5 | fr3_joint6           | _Joint  | fr3_joint6
-    6 | fr3_joint7           | _Joint  | fr3_joint7
+ id | name                 | trn     | target_joint
+----+----------------------+---------+-------------
+  0 | fr3_joint1           | _Joint  | fr3_joint1
+  1 | fr3_joint2           | _Joint  | fr3_joint2
+  2 | fr3_joint3           | _Joint  | fr3_joint3
+  3 | fr3_joint4           | _Joint  | fr3_joint4
+  4 | fr3_joint5           | _Joint  | fr3_joint5
+  5 | fr3_joint6           | _Joint  | fr3_joint6
+  6 | fr3_joint7           | _Joint  | fr3_joint7
 
-    id | name                        | type             | dim | adr | target (obj)
-    ----+-----------------------------+------------------+-----+-----+----------------
-    */
+ id | name                        | type             | dim | adr | target (obj)
+----+-----------------------------+------------------+-----+-----+----------------
+
+ id | name                        | mode     | resolution
+----+-----------------------------+----------+------------
+  0 | hand_eye                    | _Fixed   | 1920x1080
+*/
     
     class FR3Controller : public ControllerInterface
     {
@@ -43,10 +53,11 @@ namespace FR3
             // ====================================================================================
             // ================================== Core Functions ================================== 
             // ====================================================================================
-            FR3Controller(const rclcpp::Node::SharedPtr& node, double dt, JointDict jd);
+            FR3Controller(const rclcpp::Node::SharedPtr& node);
             ~FR3Controller() override;
             void starting() override;
             void updateState(const VecMap&, const VecMap&, const VecMap&, const VecMap&, double) override;
+            void updateRGBDImage(const ImageCVMap& images) override;
             void compute() override;
             CtrlInputMap getCtrlInput() const override;
 
@@ -58,6 +69,7 @@ namespace FR3
             void keyCallback(const std_msgs::msg::Int32::SharedPtr);
             void subtargetPoseCallback(const geometry_msgs::msg::PoseStamped::SharedPtr);
             void pubEEPoseCallback();
+            void pubHandEyeCallback();
 
             std::shared_ptr<FR3RobotData> robot_data_;
             std::unique_ptr<RobotController::Manipulator::ManipulatorBase> robot_controller_;
@@ -65,8 +77,14 @@ namespace FR3
             rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr            key_sub_;
             rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr target_pose_sub_;
             rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr    ee_pose_pub_;
-
+            rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr            hand_eye_cam_pub_;
+            
             rclcpp::TimerBase::SharedPtr ee_pose_pub_timer_;
+            rclcpp::TimerBase::SharedPtr hand_eye_cam_pub_timer_;
+
+            cv::Mat hand_eye_cam_img_;
+            std::string hand_eye_cam_encoding_{"rgb8"};   // publish encoding
+            std::mutex hand_eye_cam_mtx_;
     
             bool is_mode_changed_{true};
             bool is_goal_pose_changed_{false};

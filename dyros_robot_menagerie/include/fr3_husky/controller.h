@@ -12,48 +12,53 @@
 
 namespace FR3Husky
 {
-    /*
-    FR3 Husky MuJoCo Joint/Sensor Information
-    id  | name                 | type   | nq | nv | idx_q | idx_v
-    ----+----------------------+--------+----+----+-------+------
-      1 | front_left_wheel     | _Hinge |  1 |  1 |     7 |    6
-      2 | front_right_wheel    | _Hinge |  1 |  1 |     8 |    7
-      3 | rear_left_wheel      | _Hinge |  1 |  1 |     9 |    8
-      4 | rear_right_wheel     | _Hinge |  1 |  1 |    10 |    9
-      5 | fr3_joint1           | _Hinge |  1 |  1 |    11 |   10
-      6 | fr3_joint2           | _Hinge |  1 |  1 |    12 |   11
-      7 | fr3_joint3           | _Hinge |  1 |  1 |    13 |   12
-      8 | fr3_joint4           | _Hinge |  1 |  1 |    14 |   13
-      9 | fr3_joint5           | _Hinge |  1 |  1 |    15 |   14
-     10 | fr3_joint6           | _Hinge |  1 |  1 |    16 |   15
-     11 | fr3_joint7           | _Hinge |  1 |  1 |    17 |   16
+/*
+MuJoCo Model Information: fr3_husky
+ id | name                 | type   | nq | nv | idx_q | idx_v
+----+----------------------+--------+----+----+-------+------
+  1 | front_left_wheel     | _Hinge |  1 |  1 |     7 |    6
+  2 | front_right_wheel    | _Hinge |  1 |  1 |     8 |    7
+  3 | rear_left_wheel      | _Hinge |  1 |  1 |     9 |    8
+  4 | rear_right_wheel     | _Hinge |  1 |  1 |    10 |    9
+  5 | fr3_joint1           | _Hinge |  1 |  1 |    11 |   10
+  6 | fr3_joint2           | _Hinge |  1 |  1 |    12 |   11
+  7 | fr3_joint3           | _Hinge |  1 |  1 |    13 |   12
+  8 | fr3_joint4           | _Hinge |  1 |  1 |    14 |   13
+  9 | fr3_joint5           | _Hinge |  1 |  1 |    15 |   14
+ 10 | fr3_joint6           | _Hinge |  1 |  1 |    16 |   15
+ 11 | fr3_joint7           | _Hinge |  1 |  1 |    17 |   16
 
-     id | name                 | trn     | target_joint
-    ----+----------------------+---------+-------------
-      0 | left_wheel           | _Joint  | front_left_wheel
-      1 | right_wheel          | _Joint  | front_right_wheel
-      2 | fr3_joint1           | _Joint  | fr3_joint1
-      3 | fr3_joint2           | _Joint  | fr3_joint2
-      4 | fr3_joint3           | _Joint  | fr3_joint3
-      5 | fr3_joint4           | _Joint  | fr3_joint4
-      6 | fr3_joint5           | _Joint  | fr3_joint5
-      7 | fr3_joint6           | _Joint  | fr3_joint6
-      8 | fr3_joint7           | _Joint  | fr3_joint7
+ id | name                 | trn     | target_joint
+----+----------------------+---------+-------------
+  0 | left_wheel           | _Joint  | front_left_wheel
+  1 | right_wheel          | _Joint  | front_right_wheel
+  2 | fr3_joint1           | _Joint  | fr3_joint1
+  3 | fr3_joint2           | _Joint  | fr3_joint2
+  4 | fr3_joint3           | _Joint  | fr3_joint3
+  5 | fr3_joint4           | _Joint  | fr3_joint4
+  6 | fr3_joint5           | _Joint  | fr3_joint5
+  7 | fr3_joint6           | _Joint  | fr3_joint6
+  8 | fr3_joint7           | _Joint  | fr3_joint7
 
-     id | name                        | type             | dim | adr | target (obj)
-    ----+-----------------------------+------------------+-----+-----+----------------
-      0 | position_sensor             | Framepos         |   3 |   0 | Site:husky_site
-      1 | orientation_sensor          | Framequat        |   4 |   3 | Site:husky_site
-      2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:husky_site
-      3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:husky_site
-    */
+ id | name                        | type             | dim | adr | target (obj)
+----+-----------------------------+------------------+-----+-----+----------------
+  0 | position_sensor             | Framepos         |   3 |   0 | Site:husky_site
+  1 | orientation_sensor          | Framequat        |   4 |   3 | Site:husky_site
+  2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:husky_site
+  3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:husky_site
+
+ id | name                        | mode     | resolution
+----+-----------------------------+----------+------------
+  0 | azure_rgb                   | _Fixed   | 640x480
+  1 | d435_rgb                    | _Fixed   | 640x480
+*/
    class FR3HuskyController : public ControllerInterface
    {
         public:
             // ====================================================================================
             // ================================== Core Functions ================================== 
             // ====================================================================================
-            FR3HuskyController(const rclcpp::Node::SharedPtr& node, double dt, JointDict jd);
+            FR3HuskyController(const rclcpp::Node::SharedPtr& node);
             ~FR3HuskyController() override;
             void starting() override;
             void updateState(const VecMap&, const VecMap&, const VecMap&, const VecMap&, double) override;

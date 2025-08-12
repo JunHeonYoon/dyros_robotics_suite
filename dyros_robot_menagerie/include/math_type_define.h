@@ -14,6 +14,12 @@
 #define MAX_DOF 50U
 #define RAD2DEG 1/DEG2RAD
 
+//static atomic
+constexpr const char* cred   = "\033[0;31m";
+constexpr const char* creset = "\033[0m";
+constexpr const char* cblue  = "\033[0;34m";
+constexpr const char* cgreen = "\033[0;32m";
+constexpr const char* cyellow= "\033[0;33m";
 
 namespace Eigen
 {

@@ -2,9 +2,11 @@
 
 namespace FR3XLS
 {
-    FR3XLSController::FR3XLSController(const rclcpp::Node::SharedPtr& node, double dt, JointDict jd)
-    : ControllerInterface(node, dt, std::move(jd))
+    FR3XLSController::FR3XLSController(const rclcpp::Node::SharedPtr& node)
+    : ControllerInterface(node)
     {
+        dt_ = 0.001;
+
         robot_data_ = std::make_shared<FR3XLSRobotData>();
         robot_controller_ = std::make_unique<RobotController::MobileManipulator::MobileManipulatorBase>(dt_, robot_data_);
 
@@ -51,6 +53,16 @@ namespace FR3XLS
         
         torque_mani_desired_.setZero();
         qdot_mobile_desired_.setZero();
+
+        std::ostringstream oss;
+        oss << "\n=================================================================\n"
+            << "=================================================================\n"
+            << "URDF Joint Information: FR3 XLS\n"
+            << robot_data_->getVerbose()
+            << "=================================================================\n"
+            << "=================================================================";
+        const std::string print_info = oss.str();
+        RCLCPP_INFO(node->get_logger(), "%s%s%s", cblue, print_info.c_str(), creset);
     }
 
     FR3XLSController::~FR3XLSController()

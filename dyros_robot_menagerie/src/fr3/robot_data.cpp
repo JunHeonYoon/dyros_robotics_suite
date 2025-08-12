@@ -6,8 +6,7 @@ namespace FR3
     : RobotData::Manipulator::ManipulatorBase(
           ament_index_cpp::get_package_share_directory("dyros_robot_menagerie") + "/robot/fr3.urdf",
           ament_index_cpp::get_package_share_directory("dyros_robot_menagerie") + "/robot/fr3.srdf",
-          ament_index_cpp::get_package_share_directory("mujoco_ros_sim"),
-          true) 
+          ament_index_cpp::get_package_share_directory("mujoco_ros_sim")) 
     {
         ee_name_ = "fr3_link8";
     }

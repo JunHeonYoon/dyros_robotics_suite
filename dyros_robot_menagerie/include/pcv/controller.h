@@ -13,37 +13,40 @@
 
 namespace PCV
 {
-  /*
-    PCV MuJoCo Joint/Sensor Imformation
-     id | name                 | type   | nq | nv | idx_q | idx_v
-    ----+----------------------+--------+----+----+-------+------
-      1 | front_left_steer     | _Hinge |  1 |  1 |     7 |    6
-      2 | front_left_rotate    | _Hinge |  1 |  1 |     8 |    7
-      3 | rear_left_steer      | _Hinge |  1 |  1 |     9 |    8
-      4 | rear_left_rotate     | _Hinge |  1 |  1 |    10 |    9
-      5 | rear_right_steer     | _Hinge |  1 |  1 |    11 |   10
-      6 | rear_right_rotate    | _Hinge |  1 |  1 |    12 |   11
-      7 | front_right_steer    | _Hinge |  1 |  1 |    13 |   12
-      8 | front_right_rotate   | _Hinge |  1 |  1 |    14 |   13
-    
-     id | name                 | trn     | target_joint
-    ----+----------------------+---------+-------------
-      0 | front_left_rotate    | _Joint  | front_left_rotate
-      1 | front_right_rotate   | _Joint  | front_right_rotate
-      2 | rear_left_rotate     | _Joint  | rear_left_rotate
-      3 | rear_right_rotate    | _Joint  | rear_right_rotate
-      4 | front_left_steer     | _Joint  | front_left_steer
-      5 | front_right_steer    | _Joint  | front_right_steer
-      6 | rear_left_steer      | _Joint  | rear_left_steer
-      7 | rear_right_steer     | _Joint  | rear_right_steer
-    
-     id | name                        | type             | dim | adr | target (obj)
-    ----+-----------------------------+------------------+-----+-----+----------------
-      0 | position_sensor             | Framepos         |   3 |   0 | Site:dyros_pcv_site
-      1 | orientation_sensor          | Framequat        |   4 |   3 | Site:dyros_pcv_site
-      2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:dyros_pcv_site
-      3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:dyros_pcv_site
-  */
+/*
+MuJoCo Model Information: dyros_pcv
+ id | name                 | type   | nq | nv | idx_q | idx_v
+----+----------------------+--------+----+----+-------+------
+  1 | front_left_steer     | _Hinge |  1 |  1 |     7 |    6
+  2 | front_left_rotate    | _Hinge |  1 |  1 |     8 |    7
+  3 | rear_left_steer      | _Hinge |  1 |  1 |     9 |    8
+  4 | rear_left_rotate     | _Hinge |  1 |  1 |    10 |    9
+  5 | rear_right_steer     | _Hinge |  1 |  1 |    11 |   10
+  6 | rear_right_rotate    | _Hinge |  1 |  1 |    12 |   11
+  7 | front_right_steer    | _Hinge |  1 |  1 |    13 |   12
+  8 | front_right_rotate   | _Hinge |  1 |  1 |    14 |   13
+
+ id | name                 | trn     | target_joint
+----+----------------------+---------+-------------
+  0 | front_left_rotate    | _Joint  | front_left_rotate
+  1 | front_right_rotate   | _Joint  | front_right_rotate
+  2 | rear_left_rotate     | _Joint  | rear_left_rotate
+  3 | rear_right_rotate    | _Joint  | rear_right_rotate
+  4 | front_left_steer     | _Joint  | front_left_steer
+  5 | front_right_steer    | _Joint  | front_right_steer
+  6 | rear_left_steer      | _Joint  | rear_left_steer
+  7 | rear_right_steer     | _Joint  | rear_right_steer
+
+ id | name                        | type             | dim | adr | target (obj)
+----+-----------------------------+------------------+-----+-----+----------------
+  0 | position_sensor             | Framepos         |   3 |   0 | Site:dyros_pcv_site
+  1 | orientation_sensor          | Framequat        |   4 |   3 | Site:dyros_pcv_site
+  2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:dyros_pcv_site
+  3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:dyros_pcv_site
+
+ id | name                        | mode     | resolution
+----+-----------------------------+----------+------------
+*/
 
     class PCVController : public ControllerInterface
     {
@@ -51,7 +54,7 @@ namespace PCV
             // ====================================================================================
             // ================================== Core Functions ================================== 
             // ====================================================================================
-            PCVController(const rclcpp::Node::SharedPtr& node, double dt, JointDict jd);
+            PCVController(const rclcpp::Node::SharedPtr& node);
             ~PCVController() override;
             void starting() override;
             void updateState(const VecMap&, const VecMap&, const VecMap&, const VecMap&, double) override;

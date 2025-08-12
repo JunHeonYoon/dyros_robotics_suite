@@ -8,6 +8,8 @@ namespace Husky
         p.type         = RobotData::Mobile::DriveType::Differential;
         p.wheel_radius = 0.1651;
         p.base_width   = 0.2854 * 2 * 1.875;
+        p.max_lin_acc  = 3;
+        p.max_ang_acc  = 6;
         return p;
     }
 

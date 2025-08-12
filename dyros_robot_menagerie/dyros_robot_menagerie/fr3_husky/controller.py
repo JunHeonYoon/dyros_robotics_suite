@@ -18,8 +18,8 @@ from dyros_robot_menagerie.fr3_husky.robot_data import (FR3HuskyRobotData,
 from dyros_robot_controller.robot_controller import MobileManipulatorControllerBase
 
 """
-FR3 Husky MuJoCo Joint/Sensor Information
-id  | name                 | type   | nq | nv | idx_q | idx_v
+MuJoCo Model Information: fr3_husky
+ id | name                 | type   | nq | nv | idx_q | idx_v
 ----+----------------------+--------+----+----+-------+------
   1 | front_left_wheel     | _Hinge |  1 |  1 |     7 |    6
   2 | front_right_wheel    | _Hinge |  1 |  1 |     8 |    7
@@ -33,7 +33,7 @@ id  | name                 | type   | nq | nv | idx_q | idx_v
  10 | fr3_joint6           | _Hinge |  1 |  1 |    16 |   15
  11 | fr3_joint7           | _Hinge |  1 |  1 |    17 |   16
 
-id  | name                 | trn     | target_joint
+ id | name                 | trn     | target_joint
 ----+----------------------+---------+-------------
   0 | left_wheel           | _Joint  | front_left_wheel
   1 | right_wheel          | _Joint  | front_right_wheel
@@ -51,14 +51,21 @@ id  | name                 | trn     | target_joint
   1 | orientation_sensor          | Framequat        |   4 |   3 | Site:husky_site
   2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:husky_site
   3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:husky_site
+
+ id | name                        | mode     | resolution
+----+-----------------------------+----------+------------
+  0 | azure_rgb                   | _Fixed   | 640x480
+  1 | d435_rgb                    | _Fixed   | 640x480
 """
 class FR3HuskyControllerPy(ControllerInterface):
 
-    def __init__(self, node: Node, dt: float, mj_joint_dict: Dict[str, Any]) -> None:
-        super().__init__(node, dt, mj_joint_dict)
+    def __init__(self, node: Node) -> None:
+        super().__init__(node)
+        
+        self.dt = 0.001
 
-        self.robot_data       = FR3HuskyRobotData(verbose=True)
-        self.robot_controller = MobileManipulatorControllerBase(dt, self.robot_data)
+        self.robot_data       = FR3HuskyRobotData()
+        self.robot_controller = MobileManipulatorControllerBase(self.dt, self.robot_data)
 
         ns = "fr3_husky_controller"
         self._key_sub = node.create_subscription(Int32, f"{ns}/mode_input", self._key_cb, 10)
@@ -123,6 +130,17 @@ class FR3HuskyControllerPy(ControllerInterface):
             "azure_rgb": None,                    # camera names as used in sensor_dict
             "d435_rgb":   None,
         }
+        
+        lines = [
+            "=================================================================",
+            "=================================================================",
+            "URDF Joint Information: FR3 Husky",
+            self.robot_data.get_verbose().rstrip("\n"),
+            "=================================================================",
+            "=================================================================",
+        ]
+        text = "\n".join(lines)
+        self.node.get_logger().info("\033[1;34m\n" + text + "\033[0m")
 
     def starting(self) -> None:
         self.ee_timer = self.node.create_timer(0.1, self._pub_ee_pose_cb)

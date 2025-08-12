@@ -4,28 +4,80 @@
 
 namespace FR3XLS
 {
-    /*
-    FR3 XLS URDF Joint Information
-    Total nq = 14
-    Total nv = 14
-    
-     id | name              | nq | nv | idx_q | idx_v
-    ----+-------------------+----+----+-------+------
-      1 |         v_x_joint |  1 |  1 |     0 |    0
-      2 |         v_y_joint |  1 |  1 |     1 |    1
-      3 |         v_t_joint |  1 |  1 |     2 |    2
-      4 |        fr3_joint1 |  1 |  1 |     3 |    3
-      5 |        fr3_joint2 |  1 |  1 |     4 |    4
-      6 |        fr3_joint3 |  1 |  1 |     5 |    5
-      7 |        fr3_joint4 |  1 |  1 |     6 |    6
-      8 |        fr3_joint5 |  1 |  1 |     7 |    7
-      9 |        fr3_joint6 |  1 |  1 |     8 |    8
-     10 |        fr3_joint7 |  1 |  1 |     9 |    9
-     11 |  front_left_wheel |  1 |  1 |    10 |   10
-     12 | front_right_wheel |  1 |  1 |    11 |   11
-     13 |   rear_left_wheel |  1 |  1 |    12 |   12
-     14 |  rear_right_wheel |  1 |  1 |    13 |   13
-    */
+/*
+URDF Joint Information: FR3 XLS
+Total nq = 14
+Total nv = 14
+
+ id | name                 | nq | nv | idx_q | idx_v
+----+----------------------+----+----+-------+------
+  1 |            v_x_joint |  1 |  1 |     0 |    0
+  2 |            v_y_joint |  1 |  1 |     1 |    1
+  3 |            v_t_joint |  1 |  1 |     2 |    2
+  4 |           fr3_joint1 |  1 |  1 |     3 |    3
+  5 |           fr3_joint2 |  1 |  1 |     4 |    4
+  6 |           fr3_joint3 |  1 |  1 |     5 |    5
+  7 |           fr3_joint4 |  1 |  1 |     6 |    6
+  8 |           fr3_joint5 |  1 |  1 |     7 |    7
+  9 |           fr3_joint6 |  1 |  1 |     8 |    8
+ 10 |           fr3_joint7 |  1 |  1 |     9 |    9
+ 11 |     front_left_wheel |  1 |  1 |    10 |   10
+ 12 |    front_right_wheel |  1 |  1 |    11 |   11
+ 13 |      rear_left_wheel |  1 |  1 |    12 |   12
+ 14 |     rear_right_wheel |  1 |  1 |    13 |   13
+
+==================== Partition Indices ====================
+ joint index
+ name                | start
+---------------------+------
+ virtual             | 0
+ manipulator         | 3
+ mobile              | 10
+
+ actuator index
+ name                | start
+---------------------+------
+ manipulator         | 0
+ mobile              | 7
+
+======================= DoF Summary =======================
+ total dof           | 14
+ virtual dof         | 3
+ mobile dof          | 4
+ manipulator dof     | 7
+ actuated dof        | 11
+
+======================= Mobile Summary =======================
+ name                | value
+---------------------+---------------------------
+type                 | Mecanum
+wheel_num            | 4
+wheel_radius         | 0.1200
+
+roller_angles (rad)
+ idx | value
+-----+------------
+   0 |    -0.7854
+   1 |     0.7854
+   2 |     0.7854
+   3 |    -0.7854
+
+base2wheel_positions
+ idx | position
+-----+-------------------------
+   0 | [0.2225  0.2045]
+   1 | [ 0.2225  -0.2045]
+   2 | [-0.2225   0.2045]
+   3 | [-0.2225  -0.2045]
+
+base2wheel_angles (rad)
+ idx | value
+-----+------------
+   0 |     0.0000
+   1 |     0.0000
+   2 |     0.0000
+   3 |     0.0000
+*/
 
     inline constexpr int TASK_DOF     = 6;
     inline constexpr int VIRTUAL_DOF  = 3;

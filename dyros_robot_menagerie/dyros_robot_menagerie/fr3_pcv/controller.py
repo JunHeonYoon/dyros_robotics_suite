@@ -18,7 +18,7 @@ from dyros_robot_menagerie.fr3_pcv.robot_data import (FR3PCVRobotData,
 from dyros_robot_controller.robot_controller import MobileManipulatorControllerBase
 
 """
-FR3 PCV MuJoCo Joint/Sensor Information
+MuJoCo Model Information: fr3_dyros_pcv
  id | name                 | type   | nq | nv | idx_q | idx_v
 ----+----------------------+--------+----+----+-------+------
   1 | front_left_steer     | _Hinge |  1 |  1 |     7 |    6
@@ -62,15 +62,19 @@ FR3 PCV MuJoCo Joint/Sensor Information
   2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:dyros_pcv_site
   3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:dyros_pcv_site
 
-
+ id | name                        | mode     | resolution
+----+-----------------------------+----------+------------
+  0 | d435_rgb                    | _Fixed   | 640x480
 """
 class FR3PCVControllerPy(ControllerInterface):
 
-    def __init__(self, node: Node, dt: float, mj_joint_dict: Dict[str, Any]) -> None:
-        super().__init__(node, dt, mj_joint_dict)
+    def __init__(self, node: Node) -> None:
+        super().__init__(node)
+        
+        self.dt = 0.001
 
         self.robot_data       = FR3PCVRobotData(verbose=True)
-        self.robot_controller = MobileManipulatorControllerBase(dt, self.robot_data)
+        self.robot_controller = MobileManipulatorControllerBase(self.dt, self.robot_data)
 
         ns = "fr3_pcv_controller"
         self._key_sub = node.create_subscription(Int32, f"{ns}/mode_input", self._key_cb, 10)
@@ -133,6 +137,17 @@ class FR3PCVControllerPy(ControllerInterface):
         self._latest_img: Dict[str, np.ndarray] = {
             "d435_rgb":   None,                   # camera names as used in sensor_dict
         }
+        
+        lines = [
+            "=================================================================",
+            "=================================================================",
+            "URDF Joint Information: FR3 PCV",
+            self.robot_data.get_verbose().rstrip("\n"),
+            "=================================================================",
+            "=================================================================",
+        ]
+        text = "\n".join(lines)
+        self.node.get_logger().info("\033[1;34m\n" + text + "\033[0m")
 
     def starting(self) -> None:
         self.ee_timer = self.node.create_timer(0.1, self._pub_ee_pose_cb)

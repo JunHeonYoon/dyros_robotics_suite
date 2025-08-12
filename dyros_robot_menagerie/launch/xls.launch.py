@@ -30,14 +30,23 @@ def generate_launch_description():
     
     sim_node = Node(
         package='mujoco_ros_sim',
-        executable='mujoco_ros_sim',
+        executable='mujoco_sim',
         name='mujoco_sim_node',
         output='screen',
         parameters=[
             {'robot_name': "summit_xls"},
-            {'controller_class': 'dyros_robot_menagerie.XLSControllerPy'},
         ],
         remappings=[('/joint_states', '/joint_states_raw')],
+    )
+    
+    controller_node = Node(
+        package='mujoco_ros_sim',
+        executable='mujoco_controller',
+        name='mujoco_controller_node',
+        output='screen',
+        parameters=[
+            {'controller_class': 'dyros_robot_menagerie.XLSController'},
+        ],
     )
     
     urdf_path = os.path.join(get_package_share_directory('dyros_robot_menagerie'),
@@ -123,6 +132,7 @@ def generate_launch_description():
     return LaunchDescription(
         declare_args +[
         sim_node,
+        controller_node,
         robot_state_publisher,
         joint_state_publisher,
         rviz_node,

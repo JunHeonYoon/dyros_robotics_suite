@@ -2,34 +2,47 @@
 
 namespace FR3
 {
-    FR3Controller::FR3Controller(const rclcpp::Node::SharedPtr& node, double dt, JointDict jd)
-    : ControllerInterface(node, dt, std::move(jd))
+    FR3Controller::FR3Controller(const rclcpp::Node::SharedPtr& node)
+    : ControllerInterface(node)
     {
+        dt_ = 0.001;
+
         robot_data_ = std::make_shared<FR3RobotData>();
         robot_controller_ = std::make_unique<RobotController::Manipulator::ManipulatorBase>(dt_, robot_data_);
-
+        
         key_sub_ = node_->create_subscription<std_msgs::msg::Int32>("fr3_controller/mode_input", 10,std::bind(&FR3Controller::keyCallback, this, std::placeholders::_1));
         target_pose_sub_ = node_->create_subscription<geometry_msgs::msg::PoseStamped>("fr3_controller/target_pose", 10,std::bind(&FR3Controller::subtargetPoseCallback, this, std::placeholders::_1));
         
         ee_pose_pub_ = node_->create_publisher<geometry_msgs::msg::PoseStamped>("fr3_controller/ee_pose", 10);
-
+        hand_eye_cam_pub_ = node_->create_publisher<sensor_msgs::msg::Image>("fr3_controller/hand_eye_cam", 10);
+        
         q_.setZero();
         q_desired_.setZero();
         q_init_.setZero();
         qdot_.setZero();
         qdot_desired_.setZero();
         qdot_init_.setZero();
-
+        
         x_.setIdentity();
         x_init_.setIdentity();
         x_desired_.setIdentity();
         xdot_.setZero();
         xdot_init_.setZero();
         xdot_desired_.setZero();
-
+        
         x_goal_.setIdentity();
-
+        
         torque_desired_.setZero();
+        
+        std::ostringstream oss;
+        oss << "\n=================================================================\n"
+            << "=================================================================\n"
+            << "URDF Joint Information: FR3\n"
+            << robot_data_->getVerbose()
+            << "=================================================================\n"
+            << "=================================================================";
+        const std::string print_info = oss.str();
+        RCLCPP_INFO(node->get_logger(), "%s%s%s", cblue, print_info.c_str(), creset);
     }
 
     FR3Controller::~FR3Controller()
@@ -40,6 +53,7 @@ namespace FR3
     void FR3Controller::starting()
     {
         ee_pose_pub_timer_ = node_->create_wall_timer(std::chrono::milliseconds(100), std::bind(&FR3Controller::pubEEPoseCallback, this));
+        hand_eye_cam_pub_timer_ = node_->create_wall_timer(std::chrono::milliseconds(33), std::bind(&FR3Controller::pubHandEyeCallback, this));
     }
 
     void FR3Controller::updateState(const VecMap& pos_dict, 
@@ -58,11 +72,21 @@ namespace FR3
             qdot_(i) = vel_dict.at(name)(0);
         }
 
-        if(!robot_data_->updateState(q_, qdot_)) RCLCPP_ERROR(node_->get_logger(), "[FR3RobotData] Failed to update robot state.");
+        if(!robot_data_->updateState(q_, qdot_)) RCLCPP_ERROR(node_->get_logger(), "%sFailed to update robot state.%s", cred, creset);
 
         // get ee
         x_ = robot_data_->getPose();
         xdot_ = robot_data_->getVelocity();
+    }
+
+    void FR3Controller::updateRGBDImage(const ImageCVMap& images)
+    {
+        std::scoped_lock<std::mutex> lk(hand_eye_cam_mtx_);
+        hand_eye_cam_img_ = images.at("hand_eye").clone();
+
+        if (hand_eye_cam_img_.type() == CV_32FC1)     hand_eye_cam_encoding_ = "32FC1";
+        else if (hand_eye_cam_img_.type() == CV_8UC1) hand_eye_cam_encoding_ = "mono8";
+        else                                          hand_eye_cam_encoding_ = "rgb8";
     }
 
     void FR3Controller::compute()
@@ -70,7 +94,6 @@ namespace FR3
         if(is_mode_changed_)
         {
             is_mode_changed_ = false;
-            
             control_start_time_ = current_time_;
 
             q_init_ = q_;
@@ -199,7 +222,7 @@ namespace FR3
     {
         is_mode_changed_ = true;
         mode_ = mode;
-        RCLCPP_INFO(node_->get_logger(), "\033[34m Mode changed: %s\033[0m", mode.c_str());
+        RCLCPP_INFO(node_->get_logger(), "%sMode changed: %s%s", cblue, mode.c_str(), creset);
     }
 
     void FR3Controller::keyCallback(const std_msgs::msg::Int32::SharedPtr msg)
@@ -252,6 +275,23 @@ namespace FR3
         ee_pose_msg.pose.orientation.w = q.w();
         
         ee_pose_pub_->publish(ee_pose_msg);
+    }
+
+    void FR3Controller::pubHandEyeCallback()
+    {
+        cv::Mat img;
+        std::string enc;
+        {
+            std::scoped_lock<std::mutex> lk(hand_eye_cam_mtx_);
+            if (hand_eye_cam_img_.empty()) return;
+            img = hand_eye_cam_img_.clone();
+            enc = hand_eye_cam_encoding_;
+        }
+
+        auto msg = toImageMsg(img, enc);
+        msg->header.stamp = node_->now();
+        msg->header.frame_id = "hand_eye_cam_frame";
+        hand_eye_cam_pub_->publish(*msg);
     }
     
     /* register with the global registry */

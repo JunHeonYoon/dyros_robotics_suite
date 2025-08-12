@@ -16,6 +16,8 @@ namespace XLS
                             M_PI/4,  // front_right
                             M_PI/4,  // rear_left
                            -M_PI/4}; // rear_right
+        p.max_lin_acc  = 3;
+        p.max_ang_acc  = 6;
         return p;
     }
 

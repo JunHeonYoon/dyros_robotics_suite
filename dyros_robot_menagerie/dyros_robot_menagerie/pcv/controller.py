@@ -13,21 +13,56 @@ from sensor_msgs.msg import JointState
 
 from mujoco_ros_sim import ControllerInterface
 
-from dyros_robot_menagerie.pcv.robot_data import (
-    PCVRobotData,
-    TASK_DOF,
-    WHEEL_DOF,
-)
+from dyros_robot_menagerie.pcv.robot_data import (PCVRobotData,
+                                                  TASK_DOF,
+                                                  WHEEL_DOF,
+                                                  )
 from dyros_robot_controller.robot_controller.mobile.base import MobileControllerBase
 
+"""
+MuJoCo Model Information: dyros_pcv
+ id | name                 | type   | nq | nv | idx_q | idx_v
+----+----------------------+--------+----+----+-------+------
+  1 | front_left_steer     | _Hinge |  1 |  1 |     7 |    6
+  2 | front_left_rotate    | _Hinge |  1 |  1 |     8 |    7
+  3 | rear_left_steer      | _Hinge |  1 |  1 |     9 |    8
+  4 | rear_left_rotate     | _Hinge |  1 |  1 |    10 |    9
+  5 | rear_right_steer     | _Hinge |  1 |  1 |    11 |   10
+  6 | rear_right_rotate    | _Hinge |  1 |  1 |    12 |   11
+  7 | front_right_steer    | _Hinge |  1 |  1 |    13 |   12
+  8 | front_right_rotate   | _Hinge |  1 |  1 |    14 |   13
+
+ id | name                 | trn     | target_joint
+----+----------------------+---------+-------------
+  0 | front_left_rotate    | _Joint  | front_left_rotate
+  1 | front_right_rotate   | _Joint  | front_right_rotate
+  2 | rear_left_rotate     | _Joint  | rear_left_rotate
+  3 | rear_right_rotate    | _Joint  | rear_right_rotate
+  4 | front_left_steer     | _Joint  | front_left_steer
+  5 | front_right_steer    | _Joint  | front_right_steer
+  6 | rear_left_steer      | _Joint  | rear_left_steer
+  7 | rear_right_steer     | _Joint  | rear_right_steer
+
+ id | name                        | type             | dim | adr | target (obj)
+----+-----------------------------+------------------+-----+-----+----------------
+  0 | position_sensor             | Framepos         |   3 |   0 | Site:dyros_pcv_site
+  1 | orientation_sensor          | Framequat        |   4 |   3 | Site:dyros_pcv_site
+  2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:dyros_pcv_site
+  3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:dyros_pcv_site
+
+ id | name                        | mode     | resolution
+----+-----------------------------+----------+------------
+"""
 class PCVControllerPy(ControllerInterface):
 
-    def __init__(self, node: Node, dt: float, mj_joint_dict: Dict[str, Any]):
-        super().__init__(node, dt, mj_joint_dict)
+    def __init__(self, node: Node):
+        super().__init__(node)
+        
+        self.dt = 0.01
 
         # robot data & low‑level controller
         self.robot_data   = PCVRobotData()
-        self.controller   = MobileControllerBase(dt, self.robot_data)
+        self.controller   = MobileControllerBase(self.dt, self.robot_data)
 
         # ------------------------------------------------------------------ #
         # ROS 2 I/O                                                         #
@@ -71,6 +106,17 @@ class PCVControllerPy(ControllerInterface):
         self.wheel_pos           = np.zeros(WHEEL_DOF)
         self.wheel_vel           = np.zeros(WHEEL_DOF)
         self.wheel_vel_desired   = np.zeros(WHEEL_DOF)
+        
+        lines = [
+            "=================================================================",
+            "=================================================================",
+            "URDF Joint Information: PCV",
+            self.robot_data.get_verbose().rstrip("\n"),
+            "=================================================================",
+            "=================================================================",
+        ]
+        text = "\n".join(lines)
+        self.node.get_logger().info("\033[1;34m\n" + text + "\033[0m")
 
     # ------------------------------------------------------------------ lifecycle
     def starting(self) -> None:

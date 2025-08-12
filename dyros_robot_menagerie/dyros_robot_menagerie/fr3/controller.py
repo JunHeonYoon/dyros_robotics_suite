@@ -6,6 +6,8 @@ from rclpy.node import Node
 from std_msgs.msg import Int32
 from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import JointState
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
 from mujoco_ros_sim import ControllerInterface
 from dyros_robot_menagerie.fr3.robot_data import (FR3RobotData,
                                                   JOINT_DOF,
@@ -14,43 +16,53 @@ from dyros_robot_menagerie.fr3.robot_data import (FR3RobotData,
 from dyros_robot_controller.robot_controller import ManipulatorControllerBase
 
 """
-FR3 MuJoCo Joint/Sensor Information
-id | name                 | type   | nq | nv | idx_q | idx_v
+MuJoCo Model Information: franka_fr3_torque
+ id | name                 | type   | nq | nv | idx_q | idx_v
 ----+----------------------+--------+----+----+-------+------
-0 | fr3_joint1           | _Hinge |  1 |  1 |     0 |    0
-1 | fr3_joint2           | _Hinge |  1 |  1 |     1 |    1
-2 | fr3_joint3           | _Hinge |  1 |  1 |     2 |    2
-3 | fr3_joint4           | _Hinge |  1 |  1 |     3 |    3
-4 | fr3_joint5           | _Hinge |  1 |  1 |     4 |    4
-5 | fr3_joint6           | _Hinge |  1 |  1 |     5 |    5
-6 | fr3_joint7           | _Hinge |  1 |  1 |     6 |    6
+  0 | fr3_joint1           | _Hinge |  1 |  1 |     0 |    0
+  1 | fr3_joint2           | _Hinge |  1 |  1 |     1 |    1
+  2 | fr3_joint3           | _Hinge |  1 |  1 |     2 |    2
+  3 | fr3_joint4           | _Hinge |  1 |  1 |     3 |    3
+  4 | fr3_joint5           | _Hinge |  1 |  1 |     4 |    4
+  5 | fr3_joint6           | _Hinge |  1 |  1 |     5 |    5
+  6 | fr3_joint7           | _Hinge |  1 |  1 |     6 |    6
 
-id | name                 | trn     | target_joint
+ id | name                 | trn     | target_joint
 ----+----------------------+---------+-------------
-0 | fr3_joint1           | _Joint  | fr3_joint1
-1 | fr3_joint2           | _Joint  | fr3_joint2
-2 | fr3_joint3           | _Joint  | fr3_joint3
-3 | fr3_joint4           | _Joint  | fr3_joint4
-4 | fr3_joint5           | _Joint  | fr3_joint5
-5 | fr3_joint6           | _Joint  | fr3_joint6
-6 | fr3_joint7           | _Joint  | fr3_joint7
+  0 | fr3_joint1           | _Joint  | fr3_joint1
+  1 | fr3_joint2           | _Joint  | fr3_joint2
+  2 | fr3_joint3           | _Joint  | fr3_joint3
+  3 | fr3_joint4           | _Joint  | fr3_joint4
+  4 | fr3_joint5           | _Joint  | fr3_joint5
+  5 | fr3_joint6           | _Joint  | fr3_joint6
+  6 | fr3_joint7           | _Joint  | fr3_joint7
 
-id | name                        | type             | dim | adr | target (obj)
+ id | name                        | type             | dim | adr | target (obj)
 ----+-----------------------------+------------------+-----+-----+----------------
+
+ id | name                        | mode     | resolution
+----+-----------------------------+----------+------------
+  0 | hand_eye                    | _Fixed   | 1920x1080
+
 """
 class FR3ControllerPy(ControllerInterface):
-    def __init__(self, node: Node, dt: float, mj_joint_dict: Dict[str, Any], ) -> None:
-        super().__init__(node, dt, mj_joint_dict)
+    def __init__(self, node: Node) -> None:
+        super().__init__(node)
+        
+        self.dt = 0.001
 
-        self.robot_data       = FR3RobotData(verbose=True)
-        self.robot_controller = ManipulatorControllerBase(dt, self.robot_data)
+        self.robot_data       = FR3RobotData()
+        self.robot_controller = ManipulatorControllerBase(self.dt, self.robot_data)
         
         ns = "fr3_controller"
         self._key_sub = node.create_subscription(Int32, f"{ns}/mode_input", self._key_cb, 10)
         self._target_pose_sub = node.create_subscription(PoseStamped, f"{ns}/target_pose", self._target_pose_cb, 10)
         
         self._ee_pose_pub = node.create_publisher(PoseStamped, f"{ns}/ee_pose", 10)
-        
+        self.handeye_image_pub = node.create_publisher(Image, f'{ns}/handeye_view', 10)
+
+        self.bridge_ = CvBridge()
+
         self.mode: str = "NONE"
         self.is_mode_changed = True
         self.is_goal_pose_changed = False
@@ -75,9 +87,25 @@ class FR3ControllerPy(ControllerInterface):
         self.x_goal = np.eye(4)
 
         self.torque_desired = np.zeros(JOINT_DOF)
+        
+        self.handeye_image = None
+        
+        
+        lines = [
+            "=================================================================",
+            "=================================================================",
+            "URDF Joint Information: FR3",
+            self.robot_data.get_verbose().rstrip("\n"),
+            "=================================================================",
+            "=================================================================",
+        ]
+        text = "\n".join(lines)
+        self.node.get_logger().info("\033[1;34m\n" + text + "\033[0m")
+
 
     def starting(self) -> None:
         self._ee_timer = self.node.create_timer(0.1, self._pub_ee_pose_cb)
+        self.handeye_image_timer = self.node.create_timer(0.01, self._pub_handeye_image_cb)
 
     def updateState(self,
                     pos_dict: Dict[str, np.ndarray],
@@ -100,6 +128,9 @@ class FR3ControllerPy(ControllerInterface):
         # get ee
         self.x     = self.robot_data.get_pose()
         self.x_dot = self.robot_data.get_velocity()
+        
+    def updateRGBDImage(self, rgbd_dict: Dict[str, np.ndarray]) -> None:
+        self.handeye_image = rgbd_dict["hand_eye"]
 
     def compute(self) -> None:
         if self.is_mode_changed:
@@ -232,3 +263,16 @@ class FR3ControllerPy(ControllerInterface):
         quat = R.from_matrix(self.x[:3, :3]).as_quat()  # x, y, z, w
         msg.pose.orientation.x, msg.pose.orientation.y, msg.pose.orientation.z, msg.pose.orientation.w = quat
         self._ee_pose_pub.publish(msg)
+        
+    def _pub_handeye_image_cb(self):
+        if self.handeye_image is None:
+            self.node.get_logger().warn("handeye_image not ready yet")
+            return
+        img = np.ascontiguousarray(self.handeye_image)
+
+        img_bgr = img[:, :, ::-1]
+        ros_image = self.bridge_.cv2_to_imgmsg(img_bgr, encoding='bgr8')
+
+        ros_image.header.stamp = self.node.get_clock().now().to_msg()
+        ros_image.header.frame_id = 'handeye'
+        self.handeye_image_pub.publish(ros_image)

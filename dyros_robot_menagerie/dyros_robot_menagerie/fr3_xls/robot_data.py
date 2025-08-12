@@ -17,29 +17,10 @@ ACTUATOR_DOF: Final[int] = MANI_DOF + MOBI_DOF
 JOINT_DOF:    Final[int] = ACTUATOR_DOF + VIRTUAL_DOF
 
 """
-FR3 XLS URDF Joint Information
-Total nq = 14
-Total nv = 14
 
- id | name              | nq | nv | idx_q | idx_v
-----+-------------------+----+----+-------+------
-  1 |         v_x_joint |  1 |  1 |     0 |    0
-  2 |         v_y_joint |  1 |  1 |     1 |    1
-  3 |         v_t_joint |  1 |  1 |     2 |    2
-  4 |        fr3_joint1 |  1 |  1 |     3 |    3
-  5 |        fr3_joint2 |  1 |  1 |     4 |    4
-  6 |        fr3_joint3 |  1 |  1 |     5 |    5
-  7 |        fr3_joint4 |  1 |  1 |     6 |    6
-  8 |        fr3_joint5 |  1 |  1 |     7 |    7
-  9 |        fr3_joint6 |  1 |  1 |     8 |    8
- 10 |        fr3_joint7 |  1 |  1 |     9 |    9
- 11 |  front_left_wheel |  1 |  1 |    10 |   10
- 12 | front_right_wheel |  1 |  1 |    11 |   11
- 13 |   rear_left_wheel |  1 |  1 |    12 |   12
- 14 |  rear_right_wheel |  1 |  1 |    13 |   13
 """
 class FR3XLSRobotData(MobileManipulatorBase):
-    def __init__(self, verbose: bool = False) -> None:
+    def __init__(self) -> None:
         robot_pkg = get_package_share_directory("dyros_robot_menagerie")
         mujoco_pkg = get_package_share_directory("mujoco_ros_sim")
         
@@ -72,7 +53,6 @@ class FR3XLSRobotData(MobileManipulatorBase):
                          packages_path = mujoco_pkg,
                          joint_idx     = joint_idx,
                          actuator_idx  = actuator_idx,
-                         verbose       = verbose,
                          )
         
         self._ee_name: Final[str] = "fr3_link8"

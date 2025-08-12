@@ -6,6 +6,9 @@ from rclpy.node import Node
 from std_msgs.msg import Int32
 from geometry_msgs.msg import PoseStamped, Twist
 from sensor_msgs.msg import JointState
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+from rclpy.qos import qos_profile_sensor_data
 from mujoco_ros_sim import ControllerInterface
 from dyros_robot_menagerie.husky.robot_data import (HuskyRobotData,
                                                     TASK_DOF,
@@ -14,7 +17,7 @@ from dyros_robot_menagerie.husky.robot_data import (HuskyRobotData,
 from dyros_robot_controller.robot_controller import MobileControllerBase
 
 """
-Husky MuJoCo Joint/Sensor Imformation
+MuJoCo Model Information: husky
  id | name                 | type   | nq | nv | idx_q | idx_v
 ----+----------------------+--------+----+----+-------+------
   1 | front_left_wheel     | _Hinge |  1 |  1 |     7 |    6
@@ -33,14 +36,23 @@ Husky MuJoCo Joint/Sensor Imformation
   1 | orientation_sensor          | Framequat        |   4 |   3 | Site:husky_site
   2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:husky_site
   3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:husky_site
+
+ id | name                        | mode     | resolution
+----+-----------------------------+----------+------------
+  0 | front_view                  | _Fixed   | 640x480
+  1 | left_view                   | _Fixed   | 640x480
+  2 | right_view                  | _Fixed   | 640x480
+  3 | upper_view                  | _Fixed   | 640x480
 """
 class HuskyControllerPy(ControllerInterface):
 
-    def __init__(self, node: Node, dt: float, mj_joint_dict: Dict[str, Any]):
-        super().__init__(node, dt, mj_joint_dict)
+    def __init__(self, node: Node):
+        super().__init__(node)
 
+        self.dt = 0.01
+        
         self.robot_data       = HuskyRobotData()
-        self.robot_controller = MobileControllerBase(dt, self.robot_data)
+        self.robot_controller = MobileControllerBase(self.dt, self.robot_data)
 
         ns = "husky_controller"
         self.key_sub = node.create_subscription(Int32, f"{ns}/mode_input", self._key_cb, 10)
@@ -51,6 +63,10 @@ class HuskyControllerPy(ControllerInterface):
         self.pose_pub = node.create_publisher(PoseStamped, f"{ns}/base_pose", 10)
         self.vel_pub = node.create_publisher(Twist, f"{ns}/base_vel", 10)
         self.joint_pub = node.create_publisher(JointState, "/joint_states", 10)
+        self.front_image_pub = node.create_publisher(Image, f'{ns}/front_view', 10)
+        self.left_image_pub = node.create_publisher(Image, f'{ns}/left_view', 10)
+        
+        self.bridge_ = CvBridge()
 
         self.mode: str = "HOME"
         self._mode_changed = True
@@ -72,10 +88,26 @@ class HuskyControllerPy(ControllerInterface):
         self.wheel_vel         = np.zeros(WHEEL_DOF)
         
         self.wheel_vel_desired = np.zeros(WHEEL_DOF)
+        
+        self.front_image = None
+        self.left_image = None
+        
+        lines = [
+            "=================================================================",
+            "=================================================================",
+            "URDF Joint Information: Husky",
+            self.robot_data.get_verbose().rstrip("\n"),
+            "=================================================================",
+            "=================================================================",
+        ]
+        text = "\n".join(lines)
+        self.node.get_logger().info("\033[1;34m\n" + text + "\033[0m")
 
     def starting(self) -> None:
         self.pose_timer = self.node.create_timer(0.1, self._pub_pose_cb)
         self.vel_timer  = self.node.create_timer(0.1, self._pub_vel_cb)
+        self.front_image_timer = self.node.create_timer(0.01, self._pub_front_image_cb)
+        self.left_image_timer = self.node.create_timer(0.01, self._pub_left_image_cb)
 
     def updateState(self,
                    pos_dict: Dict[str, np.ndarray],
@@ -107,6 +139,10 @@ class HuskyControllerPy(ControllerInterface):
         # update internal robot model
         if not self.robot_data.update_state(self.wheel_pos, self.wheel_vel):
             self.node.get_logger().error("[HuskyRobotData] Failed to update robot state.")
+            
+    def updateRGBDImage(self, rgbd_dict: Dict[str, np.ndarray]) -> None:
+        self.front_image = rgbd_dict["front_view"]
+        self.left_image = rgbd_dict["left_view"]
 
     def compute(self) -> None:
         if self._mode_changed:
@@ -183,3 +219,30 @@ class HuskyControllerPy(ControllerInterface):
         msg = Twist()
         msg.linear.x, msg.linear.y, msg.angular.z = self.base_vel
         self.vel_pub.publish(msg)
+
+    def _pub_front_image_cb(self):
+        if self.front_image is None:
+            self.node.get_logger().warn("front_image not ready yet")
+            return
+        img = np.ascontiguousarray(self.front_image)
+
+        img_bgr = img[:, :, ::-1]
+        ros_image = self.bridge_.cv2_to_imgmsg(img_bgr, encoding='bgr8')
+
+        ros_image.header.stamp = self.node.get_clock().now().to_msg()
+        ros_image.header.frame_id = 'front_view'
+        self.front_image_pub.publish(ros_image)
+        
+    def _pub_left_image_cb(self):
+        if self.left_image is None:
+            self.node.get_logger().warn("left_image not ready yet")
+            return
+        img = np.ascontiguousarray(self.left_image)
+
+        img_bgr = img[:, :, ::-1]
+        ros_image = self.bridge_.cv2_to_imgmsg(img_bgr, encoding='bgr8')
+
+        ros_image.header.stamp = self.node.get_clock().now().to_msg()
+        ros_image.header.frame_id = 'left_view'
+        self.left_image_pub.publish(ros_image)
+

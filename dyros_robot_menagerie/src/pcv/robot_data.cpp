@@ -12,6 +12,8 @@ namespace PCV
                                   Vector2d( 0.215, -0.125),  // front_right
                                   Vector2d(-0.215,  0.125),  // rear_left
                                   Vector2d(-0.215, -0.125)}; // rear_right
+        p.max_lin_acc  = 3;
+        p.max_ang_acc  = 6;
         return p;
     }
 

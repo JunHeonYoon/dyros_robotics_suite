@@ -18,7 +18,7 @@ from dyros_robot_menagerie.fr3_xls.robot_data import (FR3XLSRobotData,
 from dyros_robot_controller.robot_controller import MobileManipulatorControllerBase
 
 """
-FR3 XLS MuJoCo Joint/Sensor Information
+MuJoCo Model Information: fr3_xls
  id | name                 | type   | nq | nv | idx_q | idx_v
 ----+----------------------+--------+----+----+-------+------
   1 | front_right_wheel    | _Hinge |  1 |  1 |     7 |    6
@@ -102,14 +102,19 @@ FR3 XLS MuJoCo Joint/Sensor Information
   2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:xls_site
   3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:xls_site
 
+ id | name                        | mode     | resolution
+----+-----------------------------+----------+------------
+  0 | d435_rgb                    | _Fixed   | 640x480
 """
 class FR3XLSControllerPy(ControllerInterface):
 
-    def __init__(self, node: Node, dt: float, mj_joint_dict: Dict[str, Any]) -> None:
-        super().__init__(node, dt, mj_joint_dict)
+    def __init__(self, node: Node) -> None:
+        super().__init__(node)
 
-        self.robot_data       = FR3XLSRobotData(verbose=True)
-        self.robot_controller = MobileManipulatorControllerBase(dt, self.robot_data)
+        self.dt = 0.001
+        
+        self.robot_data       = FR3XLSRobotData()
+        self.robot_controller = MobileManipulatorControllerBase(self.dt, self.robot_data)
 
         ns = "fr3_xls_controller"
         self._key_sub = node.create_subscription(Int32, f"{ns}/mode_input", self._key_cb, 10)
@@ -172,6 +177,17 @@ class FR3XLSControllerPy(ControllerInterface):
         self._latest_img: Dict[str, np.ndarray] = {
             "d435_rgb":   None,                   # camera names as used in sensor_dict
         }
+        
+        lines = [
+            "=================================================================",
+            "=================================================================",
+            "URDF Joint Information: FR3 XLS",
+            self.robot_data.get_verbose().rstrip("\n"),
+            "=================================================================",
+            "=================================================================",
+        ]
+        text = "\n".join(lines)
+        self.node.get_logger().info("\033[1;34m\n" + text + "\033[0m")
 
     def starting(self) -> None:
         self.ee_timer = self.node.create_timer(0.1, self._pub_ee_pose_cb)

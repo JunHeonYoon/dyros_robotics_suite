@@ -12,59 +12,62 @@
 
 namespace FR3PCV
 {
-    /*
-    FR3 PCV MuJoCo Joint/Sensor Information
-     id | name                 | type   | nq | nv | idx_q | idx_v
-    ----+----------------------+--------+----+----+-------+------
-      1 | front_left_steer     | _Hinge |  1 |  1 |     7 |    6
-      2 | front_left_rotate    | _Hinge |  1 |  1 |     8 |    7
-      3 | rear_left_steer      | _Hinge |  1 |  1 |     9 |    8
-      4 | rear_left_rotate     | _Hinge |  1 |  1 |    10 |    9
-      5 | rear_right_steer     | _Hinge |  1 |  1 |    11 |   10
-      6 | rear_right_rotate    | _Hinge |  1 |  1 |    12 |   11
-      7 | front_right_steer    | _Hinge |  1 |  1 |    13 |   12
-      8 | front_right_rotate   | _Hinge |  1 |  1 |    14 |   13
-      9 | fr3_joint1           | _Hinge |  1 |  1 |    15 |   14
-     10 | fr3_joint2           | _Hinge |  1 |  1 |    16 |   15
-     11 | fr3_joint3           | _Hinge |  1 |  1 |    17 |   16
-     12 | fr3_joint4           | _Hinge |  1 |  1 |    18 |   17
-     13 | fr3_joint5           | _Hinge |  1 |  1 |    19 |   18
-     14 | fr3_joint6           | _Hinge |  1 |  1 |    20 |   19
-     15 | fr3_joint7           | _Hinge |  1 |  1 |    21 |   20
-    
-     id | name                 | trn     | target_joint
-    ----+----------------------+---------+-------------
-      0 | front_left_rotate    | _Joint  | front_left_rotate
-      1 | front_right_rotate   | _Joint  | front_right_rotate
-      2 | rear_left_rotate     | _Joint  | rear_left_rotate
-      3 | rear_right_rotate    | _Joint  | rear_right_rotate
-      4 | front_left_steer     | _Joint  | front_left_steer
-      5 | front_right_steer    | _Joint  | front_right_steer
-      6 | rear_left_steer      | _Joint  | rear_left_steer
-      7 | rear_right_steer     | _Joint  | rear_right_steer
-      8 | fr3_joint1           | _Joint  | fr3_joint1
-      9 | fr3_joint2           | _Joint  | fr3_joint2
-     10 | fr3_joint3           | _Joint  | fr3_joint3
-     11 | fr3_joint4           | _Joint  | fr3_joint4
-     12 | fr3_joint5           | _Joint  | fr3_joint5
-     13 | fr3_joint6           | _Joint  | fr3_joint6
-     14 | fr3_joint7           | _Joint  | fr3_joint7
-    
-     id | name                        | type             | dim | adr | target (obj)
-    ----+-----------------------------+------------------+-----+-----+----------------
-      0 | position_sensor             | Framepos         |   3 |   0 | Site:dyros_pcv_site
-      1 | orientation_sensor          | Framequat        |   4 |   3 | Site:dyros_pcv_site
-      2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:dyros_pcv_site
-      3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:dyros_pcv_site
+/*
+MuJoCo Model Information: fr3_dyros_pcv
+ id | name                 | type   | nq | nv | idx_q | idx_v
+----+----------------------+--------+----+----+-------+------
+  1 | front_left_steer     | _Hinge |  1 |  1 |     7 |    6
+  2 | front_left_rotate    | _Hinge |  1 |  1 |     8 |    7
+  3 | rear_left_steer      | _Hinge |  1 |  1 |     9 |    8
+  4 | rear_left_rotate     | _Hinge |  1 |  1 |    10 |    9
+  5 | rear_right_steer     | _Hinge |  1 |  1 |    11 |   10
+  6 | rear_right_rotate    | _Hinge |  1 |  1 |    12 |   11
+  7 | front_right_steer    | _Hinge |  1 |  1 |    13 |   12
+  8 | front_right_rotate   | _Hinge |  1 |  1 |    14 |   13
+  9 | fr3_joint1           | _Hinge |  1 |  1 |    15 |   14
+ 10 | fr3_joint2           | _Hinge |  1 |  1 |    16 |   15
+ 11 | fr3_joint3           | _Hinge |  1 |  1 |    17 |   16
+ 12 | fr3_joint4           | _Hinge |  1 |  1 |    18 |   17
+ 13 | fr3_joint5           | _Hinge |  1 |  1 |    19 |   18
+ 14 | fr3_joint6           | _Hinge |  1 |  1 |    20 |   19
+ 15 | fr3_joint7           | _Hinge |  1 |  1 |    21 |   20
 
-    */
+ id | name                 | trn     | target_joint
+----+----------------------+---------+-------------
+  0 | front_left_rotate    | _Joint  | front_left_rotate
+  1 | front_right_rotate   | _Joint  | front_right_rotate
+  2 | rear_left_rotate     | _Joint  | rear_left_rotate
+  3 | rear_right_rotate    | _Joint  | rear_right_rotate
+  4 | front_left_steer     | _Joint  | front_left_steer
+  5 | front_right_steer    | _Joint  | front_right_steer
+  6 | rear_left_steer      | _Joint  | rear_left_steer
+  7 | rear_right_steer     | _Joint  | rear_right_steer
+  8 | fr3_joint1           | _Joint  | fr3_joint1
+  9 | fr3_joint2           | _Joint  | fr3_joint2
+ 10 | fr3_joint3           | _Joint  | fr3_joint3
+ 11 | fr3_joint4           | _Joint  | fr3_joint4
+ 12 | fr3_joint5           | _Joint  | fr3_joint5
+ 13 | fr3_joint6           | _Joint  | fr3_joint6
+ 14 | fr3_joint7           | _Joint  | fr3_joint7
+
+ id | name                        | type             | dim | adr | target (obj)
+----+-----------------------------+------------------+-----+-----+----------------
+  0 | position_sensor             | Framepos         |   3 |   0 | Site:dyros_pcv_site
+  1 | orientation_sensor          | Framequat        |   4 |   3 | Site:dyros_pcv_site
+  2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:dyros_pcv_site
+  3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:dyros_pcv_site
+
+ id | name                        | mode     | resolution
+----+-----------------------------+----------+------------
+  0 | d435_rgb                    | _Fixed   | 640x480
+*/
    class FR3PCVController : public ControllerInterface
    {
         public:
             // ====================================================================================
             // ================================== Core Functions ================================== 
             // ====================================================================================
-            FR3PCVController(const rclcpp::Node::SharedPtr& node, double dt, JointDict jd);
+            FR3PCVController(const rclcpp::Node::SharedPtr& node);
             ~FR3PCVController() override;
             void starting() override;
             void updateState(const VecMap&, const VecMap&, const VecMap&, const VecMap&, double) override;

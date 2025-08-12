@@ -35,8 +35,7 @@ namespace FR3Husky
         ament_index_cpp::get_package_share_directory("dyros_robot_menagerie") + "/robot/fr3_husky.srdf",
         ament_index_cpp::get_package_share_directory("mujoco_ros_sim"),
         makeJointIndex(),
-        makeActuatorIndex(),
-        true)
+        makeActuatorIndex())
     {
         ee_name_ = "fr3_link8";
     }

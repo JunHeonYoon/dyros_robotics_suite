@@ -24,12 +24,22 @@ def generate_launch_description():
     
     sim_node = Node(
         package='mujoco_ros_sim',
-        executable='mujoco_ros_sim',
+        executable='mujoco_sim',
         name='mujoco_sim_node',
         output='screen',
         parameters=[
             {'robot_name': 'fr3_xls'},
-            {'controller_class': 'dyros_robot_menagerie.FR3XLSControllerPy'},
+            ],
+        remappings=[('/joint_states', '/joint_states_raw')],
+    )
+    
+    controller_node = Node(
+        package='mujoco_ros_sim',
+        executable='mujoco_controller',
+        name='mujoco_controller_node',
+        output='screen',
+        parameters=[
+            {'controller_class': 'dyros_robot_menagerie.FR3XLSController'},
             ],
         remappings=[('/joint_states', '/joint_states_raw')],
     )
@@ -116,6 +126,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         sim_node,
+        controller_node,
         robot_state_publisher,
         joint_state_publisher,
         rviz_node,

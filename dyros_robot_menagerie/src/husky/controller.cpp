@@ -2,9 +2,11 @@
 
 namespace Husky
 {
-    HuskyController::HuskyController(const rclcpp::Node::SharedPtr& node, double dt, JointDict jd)
-    : ControllerInterface(node, dt, std::move(jd))
+    HuskyController::HuskyController(const rclcpp::Node::SharedPtr& node)
+    : ControllerInterface(node)
     {
+        dt_ = 0.01;
+        
         robot_data_ = std::make_shared<HuskyRobotData>();
         robot_controller_ = std::make_unique<RobotController::Mobile::MobileBase>(dt_, robot_data_);
 
@@ -27,6 +29,16 @@ namespace Husky
         base_vel_init_.setZero();
 
         wheel_vel_desired_.setZero();
+
+        std::ostringstream oss;
+        oss << "\n=================================================================\n"
+            << "=================================================================\n"
+            << "URDF Joint Information: Husky\n"
+            << robot_data_->getVerbose()
+            << "=================================================================\n"
+            << "=================================================================";
+        const std::string print_info = oss.str();
+        RCLCPP_INFO(node->get_logger(), "%s%s%s", cblue, print_info.c_str(), creset);
     }
 
     HuskyController::~HuskyController()

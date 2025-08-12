@@ -13,77 +13,80 @@
 
 namespace XLS
 {
-    /*
-    XLS MuJoCo Joint/Sensor Imformation
-    id | name                 | type   | nq | nv | idx_q | idx_v
-    ----+----------------------+--------+----+----+-------+------
-      1 | front_right_wheel    | _Hinge |  1 |  1 |     7 |    6
-      2 | front_right_slipping_0_joint | _Hinge |  1 |  1 |     8 |    7
-      3 | front_right_slipping_1_joint | _Hinge |  1 |  1 |     9 |    8
-      4 | front_right_slipping_2_joint | _Hinge |  1 |  1 |    10 |    9
-      5 | front_right_slipping_3_joint | _Hinge |  1 |  1 |    11 |   10
-      6 | front_right_slipping_4_joint | _Hinge |  1 |  1 |    12 |   11
-      7 | front_right_slipping_5_joint | _Hinge |  1 |  1 |    13 |   12
-      8 | front_right_slipping_6_joint | _Hinge |  1 |  1 |    14 |   13
-      9 | front_right_slipping_7_joint | _Hinge |  1 |  1 |    15 |   14
-      10 | front_right_slipping_8_joint | _Hinge |  1 |  1 |    16 |   15
-      11 | front_right_slipping_9_joint | _Hinge |  1 |  1 |    17 |   16
-      12 | front_right_slipping_10_joint | _Hinge |  1 |  1 |    18 |   17
-      13 | front_right_slipping_11_joint | _Hinge |  1 |  1 |    19 |   18
-      14 | front_left_wheel     | _Hinge |  1 |  1 |    20 |   19
-      15 | front_left_slipping_0_joint | _Hinge |  1 |  1 |    21 |   20
-      16 | front_left_slipping_1_joint | _Hinge |  1 |  1 |    22 |   21
-      17 | front_left_slipping_2_joint | _Hinge |  1 |  1 |    23 |   22
-      18 | front_left_slipping_3_joint | _Hinge |  1 |  1 |    24 |   23
-      19 | front_left_slipping_4_joint | _Hinge |  1 |  1 |    25 |   24
-      20 | front_left_slipping_5_joint | _Hinge |  1 |  1 |    26 |   25
-      21 | front_left_slipping_6_joint | _Hinge |  1 |  1 |    27 |   26
-      22 | front_left_slipping_7_joint | _Hinge |  1 |  1 |    28 |   27
-      23 | front_left_slipping_8_joint | _Hinge |  1 |  1 |    29 |   28
-      24 | front_left_slipping_9_joint | _Hinge |  1 |  1 |    30 |   29
-      25 | front_left_slipping_10_joint | _Hinge |  1 |  1 |    31 |   30
-      26 | front_left_slipping_11_joint | _Hinge |  1 |  1 |    32 |   31
-      27 | rear_right_wheel     | _Hinge |  1 |  1 |    33 |   32
-      28 | rear_right_slipping_0_joint | _Hinge |  1 |  1 |    34 |   33
-      29 | rear_right_slipping_1_joint | _Hinge |  1 |  1 |    35 |   34
-      30 | rear_right_slipping_2_joint | _Hinge |  1 |  1 |    36 |   35
-      31 | rear_right_slipping_3_joint | _Hinge |  1 |  1 |    37 |   36
-      32 | rear_right_slipping_4_joint | _Hinge |  1 |  1 |    38 |   37
-      33 | rear_right_slipping_5_joint | _Hinge |  1 |  1 |    39 |   38
-      34 | rear_right_slipping_6_joint | _Hinge |  1 |  1 |    40 |   39
-      35 | rear_right_slipping_7_joint | _Hinge |  1 |  1 |    41 |   40
-      36 | rear_right_slipping_8_joint | _Hinge |  1 |  1 |    42 |   41
-      37 | rear_right_slipping_9_joint | _Hinge |  1 |  1 |    43 |   42
-      38 | rear_right_slipping_10_joint | _Hinge |  1 |  1 |    44 |   43
-      39 | rear_right_slipping_11_joint | _Hinge |  1 |  1 |    45 |   44
-      40 | rear_left_wheel      | _Hinge |  1 |  1 |    46 |   45
-      41 | rear_left_slipping_0_joint | _Hinge |  1 |  1 |    47 |   46
-      42 | rear_left_slipping_1_joint | _Hinge |  1 |  1 |    48 |   47
-      43 | rear_left_slipping_2_joint | _Hinge |  1 |  1 |    49 |   48
-      44 | rear_left_slipping_3_joint | _Hinge |  1 |  1 |    50 |   49
-      45 | rear_left_slipping_4_joint | _Hinge |  1 |  1 |    51 |   50
-      46 | rear_left_slipping_5_joint | _Hinge |  1 |  1 |    52 |   51
-      47 | rear_left_slipping_6_joint | _Hinge |  1 |  1 |    53 |   52
-      48 | rear_left_slipping_7_joint | _Hinge |  1 |  1 |    54 |   53
-      49 | rear_left_slipping_8_joint | _Hinge |  1 |  1 |    55 |   54
-      50 | rear_left_slipping_9_joint | _Hinge |  1 |  1 |    56 |   55
-      51 | rear_left_slipping_10_joint | _Hinge |  1 |  1 |    57 |   56
-      52 | rear_left_slipping_11_joint | _Hinge |  1 |  1 |    58 |   57
+/*
+MuJoCo Model Information: summit_xls
+ id | name                 | type   | nq | nv | idx_q | idx_v
+----+----------------------+--------+----+----+-------+------
+  1 | front_right_wheel    | _Hinge |  1 |  1 |     7 |    6
+  2 | front_right_slipping_0_joint | _Hinge |  1 |  1 |     8 |    7
+  3 | front_right_slipping_1_joint | _Hinge |  1 |  1 |     9 |    8
+  4 | front_right_slipping_2_joint | _Hinge |  1 |  1 |    10 |    9
+  5 | front_right_slipping_3_joint | _Hinge |  1 |  1 |    11 |   10
+  6 | front_right_slipping_4_joint | _Hinge |  1 |  1 |    12 |   11
+  7 | front_right_slipping_5_joint | _Hinge |  1 |  1 |    13 |   12
+  8 | front_right_slipping_6_joint | _Hinge |  1 |  1 |    14 |   13
+  9 | front_right_slipping_7_joint | _Hinge |  1 |  1 |    15 |   14
+ 10 | front_right_slipping_8_joint | _Hinge |  1 |  1 |    16 |   15
+ 11 | front_right_slipping_9_joint | _Hinge |  1 |  1 |    17 |   16
+ 12 | front_right_slipping_10_joint | _Hinge |  1 |  1 |    18 |   17
+ 13 | front_right_slipping_11_joint | _Hinge |  1 |  1 |    19 |   18
+ 14 | front_left_wheel     | _Hinge |  1 |  1 |    20 |   19
+ 15 | front_left_slipping_0_joint | _Hinge |  1 |  1 |    21 |   20
+ 16 | front_left_slipping_1_joint | _Hinge |  1 |  1 |    22 |   21
+ 17 | front_left_slipping_2_joint | _Hinge |  1 |  1 |    23 |   22
+ 18 | front_left_slipping_3_joint | _Hinge |  1 |  1 |    24 |   23
+ 19 | front_left_slipping_4_joint | _Hinge |  1 |  1 |    25 |   24
+ 20 | front_left_slipping_5_joint | _Hinge |  1 |  1 |    26 |   25
+ 21 | front_left_slipping_6_joint | _Hinge |  1 |  1 |    27 |   26
+ 22 | front_left_slipping_7_joint | _Hinge |  1 |  1 |    28 |   27
+ 23 | front_left_slipping_8_joint | _Hinge |  1 |  1 |    29 |   28
+ 24 | front_left_slipping_9_joint | _Hinge |  1 |  1 |    30 |   29
+ 25 | front_left_slipping_10_joint | _Hinge |  1 |  1 |    31 |   30
+ 26 | front_left_slipping_11_joint | _Hinge |  1 |  1 |    32 |   31
+ 27 | rear_right_wheel     | _Hinge |  1 |  1 |    33 |   32
+ 28 | rear_right_slipping_0_joint | _Hinge |  1 |  1 |    34 |   33
+ 29 | rear_right_slipping_1_joint | _Hinge |  1 |  1 |    35 |   34
+ 30 | rear_right_slipping_2_joint | _Hinge |  1 |  1 |    36 |   35
+ 31 | rear_right_slipping_3_joint | _Hinge |  1 |  1 |    37 |   36
+ 32 | rear_right_slipping_4_joint | _Hinge |  1 |  1 |    38 |   37
+ 33 | rear_right_slipping_5_joint | _Hinge |  1 |  1 |    39 |   38
+ 34 | rear_right_slipping_6_joint | _Hinge |  1 |  1 |    40 |   39
+ 35 | rear_right_slipping_7_joint | _Hinge |  1 |  1 |    41 |   40
+ 36 | rear_right_slipping_8_joint | _Hinge |  1 |  1 |    42 |   41
+ 37 | rear_right_slipping_9_joint | _Hinge |  1 |  1 |    43 |   42
+ 38 | rear_right_slipping_10_joint | _Hinge |  1 |  1 |    44 |   43
+ 39 | rear_right_slipping_11_joint | _Hinge |  1 |  1 |    45 |   44
+ 40 | rear_left_wheel      | _Hinge |  1 |  1 |    46 |   45
+ 41 | rear_left_slipping_0_joint | _Hinge |  1 |  1 |    47 |   46
+ 42 | rear_left_slipping_1_joint | _Hinge |  1 |  1 |    48 |   47
+ 43 | rear_left_slipping_2_joint | _Hinge |  1 |  1 |    49 |   48
+ 44 | rear_left_slipping_3_joint | _Hinge |  1 |  1 |    50 |   49
+ 45 | rear_left_slipping_4_joint | _Hinge |  1 |  1 |    51 |   50
+ 46 | rear_left_slipping_5_joint | _Hinge |  1 |  1 |    52 |   51
+ 47 | rear_left_slipping_6_joint | _Hinge |  1 |  1 |    53 |   52
+ 48 | rear_left_slipping_7_joint | _Hinge |  1 |  1 |    54 |   53
+ 49 | rear_left_slipping_8_joint | _Hinge |  1 |  1 |    55 |   54
+ 50 | rear_left_slipping_9_joint | _Hinge |  1 |  1 |    56 |   55
+ 51 | rear_left_slipping_10_joint | _Hinge |  1 |  1 |    57 |   56
+ 52 | rear_left_slipping_11_joint | _Hinge |  1 |  1 |    58 |   57
 
-    id | name                 | trn     | target_joint
-    ----+----------------------+---------+-------------
-      0 | front_right_wheel    | _Joint  | front_right_wheel
-      1 | front_left_wheel     | _Joint  | front_left_wheel
-      2 | rear_right_wheel     | _Joint  | rear_right_wheel
-      3 | rear_left_wheel      | _Joint  | rear_left_wheel
+ id | name                 | trn     | target_joint
+----+----------------------+---------+-------------
+  0 | front_right_wheel    | _Joint  | front_right_wheel
+  1 | front_left_wheel     | _Joint  | front_left_wheel
+  2 | rear_right_wheel     | _Joint  | rear_right_wheel
+  3 | rear_left_wheel      | _Joint  | rear_left_wheel
 
-    id | name                        | type             | dim | adr | target (obj)
-    ----+-----------------------------+------------------+-----+-----+----------------
-      0 | position_sensor             | Framepos         |   3 |   0 | Site:xls_site
-      1 | orientation_sensor          | Framequat        |   4 |   3 | Site:xls_site
-      2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:xls_site
-      3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:xls_site
-    */
+ id | name                        | type             | dim | adr | target (obj)
+----+-----------------------------+------------------+-----+-----+----------------
+  0 | position_sensor             | Framepos         |   3 |   0 | Site:xls_site
+  1 | orientation_sensor          | Framequat        |   4 |   3 | Site:xls_site
+  2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:xls_site
+  3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:xls_site
+
+ id | name                        | mode     | resolution
+----+-----------------------------+----------+------------
+*/
 
     class XLSController : public ControllerInterface
     {
@@ -91,7 +94,7 @@ namespace XLS
             // ====================================================================================
             // ================================== Core Functions ================================== 
             // ====================================================================================
-            XLSController(const rclcpp::Node::SharedPtr& node, double dt, JointDict jd);
+            XLSController(const rclcpp::Node::SharedPtr& node);
             ~XLSController() override;
             void starting() override;
             void updateState(const VecMap&, const VecMap&, const VecMap&, const VecMap&, double) override;

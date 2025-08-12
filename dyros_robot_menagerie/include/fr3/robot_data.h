@@ -4,21 +4,21 @@
 
 namespace FR3
 {
-    /*
-    FR3 URDF Joint Information
-    Total nq = 7
-    Total nv = 7
+/*
+URDF Joint Information: FR3
+Total nq = 7
+Total nv = 7
 
-    id | name                 | nq | nv | idx_q | idx_v
-    ----+----------------------+----+----+-------+------
-    1 |           fr3_joint1 |  1 |  1 |     0 |    0
-    2 |           fr3_joint2 |  1 |  1 |     1 |    1
-    3 |           fr3_joint3 |  1 |  1 |     2 |    2
-    4 |           fr3_joint4 |  1 |  1 |     3 |    3
-    5 |           fr3_joint5 |  1 |  1 |     4 |    4
-    6 |           fr3_joint6 |  1 |  1 |     5 |    5
-    7 |           fr3_joint7 |  1 |  1 |     6 |    6
-    */
+ id | name                 | nq | nv | idx_q | idx_v
+----+----------------------+----+----+-------+------
+  1 |           fr3_joint1 |  1 |  1 |     0 |    0
+  2 |           fr3_joint2 |  1 |  1 |     1 |    1
+  3 |           fr3_joint3 |  1 |  1 |     2 |    2
+  4 |           fr3_joint4 |  1 |  1 |     3 |    3
+  5 |           fr3_joint5 |  1 |  1 |     4 |    4
+  6 |           fr3_joint6 |  1 |  1 |     5 |    5
+  7 |           fr3_joint7 |  1 |  1 |     6 |    6
+*/
 
     inline constexpr int TASK_DOF  = 6;
     inline constexpr int JOINT_DOF = 7;

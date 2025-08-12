@@ -13,28 +13,35 @@
 
 namespace Husky
 {
-    /*
-    Husky MuJoCo Joint/Sensor Imformation
-     id | name                 | type   | nq | nv | idx_q | idx_v
-    ----+----------------------+--------+----+----+-------+------
-      1 | front_left_wheel     | _Hinge |  1 |  1 |     7 |    6
-      2 | front_right_wheel    | _Hinge |  1 |  1 |     8 |    7
-      3 | rear_left_wheel      | _Hinge |  1 |  1 |     9 |    8
-      4 | rear_right_wheel     | _Hinge |  1 |  1 |    10 |    9
-    
-     id | name                 | trn     | target_joint
-    ----+----------------------+---------+-------------
-      0 | left_wheel           | _Joint  | front_left_wheel
-      1 | right_wheel          | _Joint  | front_right_wheel
-    
-     id | name                        | type             | dim | adr | target (obj)
-    ----+-----------------------------+------------------+-----+-----+----------------
-      0 | position_sensor             | Framepos         |   3 |   0 | Site:husky_site
-      1 | orientation_sensor          | Framequat        |   4 |   3 | Site:husky_site
-      2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:husky_site
-      3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:husky_site
+/*
+MuJoCo Model Information: husky
+ id | name                 | type   | nq | nv | idx_q | idx_v
+----+----------------------+--------+----+----+-------+------
+  1 | front_left_wheel     | _Hinge |  1 |  1 |     7 |    6
+  2 | front_right_wheel    | _Hinge |  1 |  1 |     8 |    7
+  3 | rear_left_wheel      | _Hinge |  1 |  1 |     9 |    8
+  4 | rear_right_wheel     | _Hinge |  1 |  1 |    10 |    9
 
-    */
+ id | name                 | trn     | target_joint
+----+----------------------+---------+-------------
+  0 | left_wheel           | _Joint  | front_left_wheel
+  1 | right_wheel          | _Joint  | front_right_wheel
+
+ id | name                        | type             | dim | adr | target (obj)
+----+-----------------------------+------------------+-----+-----+----------------
+  0 | position_sensor             | Framepos         |   3 |   0 | Site:husky_site
+  1 | orientation_sensor          | Framequat        |   4 |   3 | Site:husky_site
+  2 | linear_velocity_sensor      | Framelinvel      |   3 |   7 | Site:husky_site
+  3 | angular_velocity_sensor     | Frameangvel      |   3 |  10 | Site:husky_site
+
+ id | name                        | mode     | resolution
+----+-----------------------------+----------+------------
+  0 | front_view                  | _Fixed   | 640x480
+  1 | left_view                   | _Fixed   | 640x480
+  2 | right_view                  | _Fixed   | 640x480
+  3 | upper_view                  | _Fixed   | 640x480
+
+*/
 
     class HuskyController : public ControllerInterface
     {
@@ -42,7 +49,7 @@ namespace Husky
             // ====================================================================================
             // ================================== Core Functions ================================== 
             // ====================================================================================
-            HuskyController(const rclcpp::Node::SharedPtr& node, double dt, JointDict jd);
+            HuskyController(const rclcpp::Node::SharedPtr& node);
             ~HuskyController() override;
             void starting() override;
             void updateState(const VecMap&, const VecMap&, const VecMap&, const VecMap&, double) override;
