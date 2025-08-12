@@ -6,4 +6,4 @@
 	url = https://github.com/JunHeonYoon/mujoco_ros2_sim.git
 [submodule "mujoco_ros_sim_msgs"]
 	path = mujoco_ros_sim_msgs
-	url = https://github.com/JunHeonYoon/mujoco_ros2_sim_msgs.git
+	url = https://github.com/JunHeonYoon/mujoco_ros_sim_msgs.git
