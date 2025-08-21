@@ -1,0 +1,7 @@
+<library path="fr3_controller_plugins">
+  <class name="dyros_robot_menagerie/FR3Controller"
+         type="FR3::FR3ControllerFactory"
+         base_class_type="ControllerFactory">
+    <description>FR3 torque controller (factory-registered).</description>
+  </class>
+</library>

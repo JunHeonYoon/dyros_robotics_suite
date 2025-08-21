@@ -2,6 +2,11 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 import os
 from ament_index_python.packages import get_package_share_directory
+from launch.substitutions import FindExecutable
+from launch.actions import SetEnvironmentVariable
+
+SetEnvironmentVariable('RMW_IMPLEMENTATION', 'rmw_cyclonedds_cpp')
+
 
 
 def generate_launch_description():
@@ -16,13 +21,12 @@ def generate_launch_description():
     )
     controller_node = Node(
         package='mujoco_ros_sim',
-        executable='mujoco_controller',
+        executable='MujocoController',
         name='mujoco_controller_node',
         output='screen',
-        parameters=[
-            {'controller_class': 'dyros_robot_menagerie.FR3ControllerPy'},
-        ],
+        parameters=[{'controller_class': 'dyros_robot_menagerie/FR3Controller'}],
     )
+
 
     urdf_path = os.path.join(get_package_share_directory('dyros_robot_menagerie'),
                             'robot', 'fr3.urdf')

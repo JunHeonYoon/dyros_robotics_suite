@@ -63,7 +63,7 @@ class FR3ControllerPy(ControllerInterface):
 
         self.bridge_ = CvBridge()
 
-        self.mode: str = "NONE"
+        self.mode: str = "HOME"
         self.is_mode_changed = True
         self.is_goal_pose_changed = False
 
@@ -104,8 +104,8 @@ class FR3ControllerPy(ControllerInterface):
 
 
     def starting(self) -> None:
-        self._ee_timer = self.node.create_timer(0.1, self._pub_ee_pose_cb)
-        self.handeye_image_timer = self.node.create_timer(0.01, self._pub_handeye_image_cb)
+        self._ee_timer = self.node.create_timer(0.01, self._pub_ee_pose_cb)
+        self.handeye_image_timer = self.node.create_timer(0.033, self._pub_handeye_image_cb)
 
     def updateState(self,
                     pos_dict: Dict[str, np.ndarray],
@@ -127,7 +127,7 @@ class FR3ControllerPy(ControllerInterface):
 
         # get ee
         self.x     = self.robot_data.get_pose()
-        self.x_dot = self.robot_data.get_velocity()
+        self.xdot = self.robot_data.get_velocity()
         
     def updateRGBDImage(self, rgbd_dict: Dict[str, np.ndarray]) -> None:
         self.handeye_image = rgbd_dict["hand_eye"]
@@ -143,7 +143,7 @@ class FR3ControllerPy(ControllerInterface):
             self.qdot_desired[:] = 0.0
 
             self.x_init          = self.x.copy()
-            self.xdot_init       = self.x_dot.copy()
+            self.xdot_init       = self.xdot.copy()
             self.x_desired       = self.x_init.copy()
             self.xdot_desired[:] = 0.0
             
@@ -166,7 +166,7 @@ class FR3ControllerPy(ControllerInterface):
                 self.control_start_time = self.current_time
                 
                 self.x_init  = self.x.copy()
-                self.xdot_init = self.x_dot.copy()
+                self.xdot_init = self.xdot.copy()
 
             if self.mode == "CLIK":
                 self.qdot_desired = self.robot_controller.CLIK_cubic(x_target     = self.x_goal,
@@ -178,6 +178,7 @@ class FR3ControllerPy(ControllerInterface):
                                                                      duration     = 4.0,
                                                                      link_name    = self.robot_data.ee_name,
                                                                      )
+
                 self.q_desired += self.dt * self.qdot_desired
                 self.torque_desired = self.robot_controller.move_joint_torque_step(self.q_desired, 
                                                                                    self.qdot_desired)

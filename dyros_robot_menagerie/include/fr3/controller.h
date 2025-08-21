@@ -1,5 +1,7 @@
 #pragma once
+#include <pluginlib/class_list_macros.hpp>
 #include "mujoco_ros_sim/ControllerInterface.hpp"
+#include "mujoco_ros_sim/ControllerFactory.hpp"
 
 #include "fr3/robot_data.h"
 
@@ -47,7 +49,7 @@ MuJoCo Model Information: franka_fr3_torque
   0 | hand_eye                    | _Fixed   | 1920x1080
 */
     
-    class FR3Controller : public ControllerInterface
+    class FR3Controller final : public ControllerInterface
     {
         public:
             // ====================================================================================
@@ -114,5 +116,11 @@ MuJoCo Model Information: franka_fr3_torque
 
             //// control input
             JointVec torque_desired_;
+    };
+
+    class FR3ControllerFactory final : public ControllerFactory 
+    {
+        public:
+            std::shared_ptr<ControllerInterface> create(const rclcpp::Node::SharedPtr& node) override{return std::make_shared<FR3Controller>(node);}
     };
 } // namespace FR3Controller

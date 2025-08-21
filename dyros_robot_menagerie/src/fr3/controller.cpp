@@ -295,5 +295,5 @@ namespace FR3
     }
     
     /* register with the global registry */
-    REGISTER_MJ_CONTROLLER(FR3Controller, "FR3Controller")
+    PLUGINLIB_EXPORT_CLASS(FR3::FR3ControllerFactory, ControllerFactory)
 }
